@@ -2,13 +2,13 @@
 #include <iostream>
 using namespace std;
 
-//тесты для аллокатора
+//С‚РµСЃС‚С‹ РґР»СЏ Р°Р»Р»РѕРєР°С‚РѕСЂР°
 int main()
 {
     Allocator allo;
     allo.makeAllocator(10);
 
-    //выделяется ли память
+    //РІС‹РґРµР»СЏРµС‚СЃСЏ Р»Рё РїР°РјСЏС‚СЊ
     char* a=allo.alloc(4);
     for (int i=0; i < 4; ++i) {
         *(a + i)='a';
@@ -18,7 +18,7 @@ int main()
     }
     else cout << "1st test: not passed" << endl;
     
-    //дописывается ли дальше
+    //РґРѕРїРёСЃС‹РІР°РµС‚СЃСЏ Р»Рё РґР°Р»СЊС€Рµ
     char* b=allo.alloc(4);
     for (int i=0; i < 4; ++i) {
         *(b + i)='a';
@@ -28,7 +28,7 @@ int main()
     }
     else cout << "2nd test: not passed" << endl;
     
-    //не пишет, когда память кончилась
+    //РЅРµ РїРёС€РµС‚, РєРѕРіРґР° РїР°РјСЏС‚Рё РЅРµ С…РІР°С‚РёС‚
     char* c=allo.alloc(4);
     if (c == nullptr){
     	cout << "3rd test: passed" << endl;
@@ -37,7 +37,7 @@ int main()
 
     allo.reset();
 
-    //снова пишет после reset'а
+    //СЃРЅРѕРІР° РїРёС€РµС‚ РїРѕСЃР»Рµ reset'Р°
     char* d=allo.alloc(4);
     for (int i=0; i < 4; ++i) {
         *(d + i)='a';
