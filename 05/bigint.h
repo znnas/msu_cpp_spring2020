@@ -1,13 +1,6 @@
 #pragma once
 
-#include <stdexcept>
 #include <iostream>
-#include <iomanip>
-#include <cctype>
-#include <cstring>
-#include <string>
-#include <limits>
-
 using namespace std;
 
 class BigInt

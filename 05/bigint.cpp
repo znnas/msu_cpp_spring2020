@@ -1,8 +1,4 @@
 #include "bigint.h"
-#include <cmath>
-#include <string>
-
-using namespace std;
 
 //base operators, copy and move
 BigInt::BigInt(int64_t number)
