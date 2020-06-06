@@ -125,22 +125,22 @@ public:
 
     void resize(size_type new_size, const_reference value)
     {
-        if ( new_size > size() ) {
-            if ( new_size > capacity() ) {
+        if (new_size > size()) {
+            if (new_size > capacity()) {
                 reallocate(2 * new_size);
             }
             pointer ptr = data_ + size_;
             pointer ptr_end = data_ + new_size;
-            while ( ptr < ptr_end ) {
+            while (ptr < ptr_end) {
                 *ptr = static_cast<T>(value);
                 ++ptr;
             }
             size_ = new_size;
         }
-        else if ( new_size < size() ) {
+        else if (new_size < size()) {
             pointer ptr = data_ + new_size;
             pointer ptr_end = data_ + size_;
-            while ( ptr < ptr_end ) {
+            while (ptr < ptr_end) {
             	ptr->~T();
                 ++ptr;
             }
@@ -151,22 +151,22 @@ public:
 
     void resize(size_type new_size)
     {
-        if ( new_size > size_ ) {
-            if ( new_size > capacity_ ) {
+        if (new_size > size_) {
+            if (new_size > capacity_) {
                 reallocate(2 * new_size);
             }
             pointer ptr = data_ + size_;
             pointer ptr_end = data_ + new_size;
-            while ( ptr < ptr_end ) {
+            while (ptr < ptr_end) {
                 *ptr = static_cast<T>(T());
                 ++ptr;
             }
             size_ = new_size;
         }
-        else if ( new_size < size() ) {
+        else if (new_size < size()) {
             pointer ptr = data_ + new_size;
             pointer ptr_end = data_ + size_;
-            while ( ptr < ptr_end ) {
+            while (ptr < ptr_end) {
             	ptr->~T();
                 ++ptr;
             }
@@ -203,8 +203,7 @@ private:
     {
         if (data_) {
             pointer cur = data_;
-            size_type i = 0;
-            for ( size_t i = 0; i < size_; ++i ) {
+            for (size_t i = 0; i < size_; ++i) {
                 cur->~T();
                 ++cur;
             }
