@@ -34,10 +34,10 @@ void get_args(vector<string>& vs, T&& arg, Args&&... args)
 string form_string(const string& s, vector<string>& vs)
 {
     if (vs.size() == 0) return s;
-	string r;
+    string r;
     int cur;
 
-	char br_open = '{';
+    char br_open = '{';
     char br_close = '}';
     bool opened = false;
     int pos_open = 0;
