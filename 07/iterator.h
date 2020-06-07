@@ -4,7 +4,7 @@
 using namespace std;
 
 template <class T>
-class Iterator: public iterator<random_access_iterator_tag, T>
+class Iterator: public iterator<bidirectional_iterator_tag, T>
 {
 private:
     T* ptr_;

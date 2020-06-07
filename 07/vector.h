@@ -37,10 +37,11 @@ public:
         size_ = count;
         capacity_ = 2 * count;
         data_ = alloc_.allocate(capacity_);
-        pointer cur = data_;
+        //pointer cur = data_;
         for ( size_t i = 0; i < size_; ++i ) {
-            *cur = T();
-            ++cur;
+            data_ + i = T();
+        	//*cur = T();
+            //++cur;
         }
     }
 
@@ -49,10 +50,11 @@ public:
         size_ = count;
         capacity_ = 2 * count;
         data_ = alloc_.allocate(capacity_);
-        pointer cur = data_;
+        //pointer cur = data_;
         for ( size_t i = 0; i < size_; ++i ) {
-            *cur = value;
-            ++cur;
+            data_ + i = value;
+        	//*cur = value;
+            //++cur;
         }
     }
 
@@ -72,20 +74,20 @@ public:
     //back: push_back, pop_back
     void emplace_back(T&& val)
     {
-        if ( size_ == capacity_ ) {
-            size_type new_capacity = ( size_ != 0 ) ? 2 * size_ : 1;
+        if (size_ == capacity_) {
+            size_type new_capacity = (size_ != 0) ? 2 * size_ : 1;
             reallocate(new_capacity); 
         }
         pointer dc = data_+ size_;
-        *dc = std::move(val);
+        *dc = move(val);
         ++size_;
     }
 
     template<typename... Args>
     void emplace_back(T&& val, Args&&... args)
     {
-        emplace_back(std::forward<T>(val));
-        emplace_back(std::forward<Args>(args)...);
+        emplace_back(forward<T>(val));
+        emplace_back(forward<Args>(args)...);
     }
 
     void push_back(const value_type& value) { 
@@ -93,12 +95,12 @@ public:
     }
 
     void push_back(value_type&& value) { 
-        emplace_back(std::move(value));
+        emplace_back(move(value));
     }
 
     void pop_back()
     {
-        if ( size_ > 0 ) {
+        if (size_ > 0) {
             size_--;
             pointer ptr = data_ + size_;
             ptr->~T();
@@ -140,7 +142,7 @@ public:
         else if (new_size < size()) {
             pointer ptr = data_ + new_size;
             pointer ptr_end = data_ + size_;
-            while (ptr < ptr_end) {
+            while ( ptr < ptr_end ) {
             	ptr->~T();
                 ++ptr;
             }
