@@ -28,7 +28,7 @@ public:
         for (size_t i=0; i<poolSize; i++)
             threads_.emplace_back(
             [this]{
-				while(true) {
+        		while(true) {
 					function<void()> task;
 					{
 						unique_lock<mutex> lock(this->queue_mutex);
@@ -87,14 +87,14 @@ int main()
     for (int i=0; i<19; i++) {
         results.emplace_back(
             pool.exec([i] {
-        	cout << "start task N " << i << ", thread id=" << this_thread::get_id() << +"\n";
+				cout << "start task N " << i << ", thread id=" << this_thread::get_id() << +"\n";
 
-            int rd = rand() % 100;
-            this_thread::sleep_for(chrono::milliseconds(rd));
+				int rd = rand() % 100;
+				this_thread::sleep_for(chrono::milliseconds(rd));
 
-            cout << " end  task N " << i << ", thread id=" << this_thread::get_id() << +"\n";
-            return string("\n");
-        })
+				cout << " end  task N " << i << ", thread id=" << this_thread::get_id() << +"\n";
+				return string("\n");
+        	})
         );
     }
 
