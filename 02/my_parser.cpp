@@ -8,7 +8,7 @@ void nothing(vector<string>& token){
 
 }
 
-vector<int> to_int(vector<string> digits){
+vector<int> to_int(vector<string>& digits){
 	vector<int> res;
 	int n = digits.size();
 	for(int i=0;i<n;i++){
@@ -17,7 +17,7 @@ vector<int> to_int(vector<string> digits){
 	return res;
 }
 
-void parser(string test, vector<int>& res_digits, vector<string>& res_letters,
+void parser(string& test, vector<int>& res_digits, vector<string>& res_letters,
 		    void (*do_letter)(vector<string>&), //ставил auto, все работает, но ругается. Пусть знаем тип.
 			void (*do_digits)(vector<int>&),             //здесь тоже
 			void (*preproc)(vector<string>&)){
@@ -27,18 +27,19 @@ void parser(string test, vector<int>& res_digits, vector<string>& res_letters,
 	   vector<string> token;
 	   bool cond_i;
 	   bool cond_plus;
-	   int len = test.length();
+	   size_t len = test.length();
 
 	   for(int i=0;i<len-1;i++){
-		   cond_i = ((test[i]==' ')||(test[i]=='\t')||(test[i]=='\n'));
-		   cond_plus = ((test[i+1]!=' ')&&(test[i+1]!='\t')&&(test[i+1]!='\n'));
+		   //isalnum
+		   cond_i = !isalnum(test[i]);//((test[i]==' ')||(test[i]=='\t')||(test[i]=='\n'));
+		   cond_plus = isalnum(test[i]);//((test[i+1]!=' ')&&(test[i+1]!='\t')&&(test[i+1]!='\n'));
 		   if (cond_i && cond_plus) {
 			   token_start.push_back(i+1);
 		   }
 	   }
 	   for(int i=0;i<len-1;i++){
-		   cond_plus = ((test[i+1]==' ')||(test[i+1]=='\t')||(test[i+1]=='\n'));
-		   cond_i = ((test[i]!=' ')&&(test[i]!='\t')&&(test[i]!='\n'));
+		   cond_plus = !isalnum(test[i+1]);//((test[i+1]==' ')||(test[i+1]=='\t')||(test[i+1]=='\n'));
+		   cond_i = isalnum(test[i]);//((test[i]!=' ')&&(test[i]!='\t')&&(test[i]!='\n'));
 		   if (cond_i && cond_plus) {
 			   token_end.push_back(i+1);
 		   }
@@ -79,13 +80,6 @@ void parser(string test, vector<int>& res_digits, vector<string>& res_letters,
 	   
 	   do_digits(res_digits);
 	   res_letters = letters;
-
-	   token.clear();
-	   token.shrink_to_fit(); //где-то вычитал, что только так можно быть уверенным в очистке памяти
-	   token_start.clear();
-	   token_start.shrink_to_fit();
-	   token_end.clear();
-	   token_end.shrink_to_fit();
 }
 
 
