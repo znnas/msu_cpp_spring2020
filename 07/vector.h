@@ -37,11 +37,10 @@ public:
         size_ = count;
         capacity_ = 2 * count;
         data_ = alloc_.allocate(capacity_);
-        //pointer cur = data_;
-        for ( size_t i = 0; i < size_; ++i ) {
-            data_ + i = T();
-        	//*cur = T();
-            //++cur;
+        pointer cur = data_;
+        for (size_t i = 0; i < size_; ++i) {
+        	new (*cur) T();
+            ++cur;
         }
     }
 
@@ -50,11 +49,11 @@ public:
         size_ = count;
         capacity_ = 2 * count;
         data_ = alloc_.allocate(capacity_);
-        //pointer cur = data_;
-        for ( size_t i = 0; i < size_; ++i ) {
-            data_ + i = value;
-        	//*cur = value;
-            //++cur;
+        pointer cur = data_;
+        for (size_t i = 0; i < size_; ++i) {
+            new (*cur) T(value);
+            //*cur = value;
+            ++cur;
         }
     }
 
