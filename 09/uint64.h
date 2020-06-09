@@ -1,91 +1,127 @@
-п»ї#include <chrono>
+#include <chrono>
 #include <iostream>
 #include <random>
-#include <limits>
 #include <fstream>
 #include <thread>
 #include <mutex>
 #include <functional>
 #include <string>
 #include <queue>
-#include <iterator>
-#include <cstdio>
+#include <vector>
 
 using namespace std;
 
 class Timer
 {
 public:
-    Timer()
-        : start_(chrono::high_resolution_clock::now())
-    {}
-
-    ~Timer()
+    void start()
     {
-        const auto finish = chrono::high_resolution_clock::now();
-        cout << chrono::duration_cast<chrono::microseconds>( finish - start_ ).count() << " us" << endl;
+        m_StartTime = chrono::system_clock::now();
+        m_bRunning = true;
+    }
+
+    void stop()
+    {
+        m_EndTime = chrono::system_clock::now();
+        m_bRunning = false;
+    }
+
+    double elapsedMilliseconds()
+    {
+        chrono::time_point<chrono::system_clock> endTime;
+
+        if(m_bRunning)
+        {
+            endTime = chrono::system_clock::now();
+        }
+        else
+        {
+            endTime = m_EndTime;
+        }
+
+        return chrono::duration_cast<chrono::milliseconds>(endTime - m_StartTime).count();
+    }
+
+    double elapsedSeconds()
+    {
+        return elapsedMilliseconds() / 1000.0;
     }
 
 private:
-    const chrono::high_resolution_clock::time_point start_;
+    chrono::time_point<chrono::system_clock> m_StartTime;
+    chrono::time_point<chrono::system_clock> m_EndTime;
+    bool m_bRunning = false;
 };
+//copied from https://gist.github.com/mcleary/b0bf4fa88830ff7c882d
 
 
-class Uint64_order
+class thread_sort
 {
 private:
-    size_t cnt_block = 100000;            // size of block
+    size_t cnt_block;            // размер блока в количестве чисел типа uint64_t
+    size_t portion;
     string file_for_sort;
     string file_sorted;
 
-    queue<string> queue_parts; 			 // names of sorted files
-    int nom_part = 1;                    // current number of file
+    int nom_part = 1;                    // номер следующего частично отсортированного файла
+    int cur_part = 1;
     size_t sz = sizeof(uint64_t);
 
-    mutex guard_nom_part;
-    mutex guard_queue_parts;
-    mutex guard_input;
+    mutex guard_nom_part;            // для блокировки nom_part
+    mutex guard_cur_part;			 // для блокировки cur_part
+    mutex guard_input;               // для блокировки входного файла
+    mutex* guard_file;               // для блокировки файла, в которы сейчас пишем
 
 private:
-    // СЃРѕСЂС‚РёСЂРѕРІРєР° С‡РёСЃРµР» РёР· РїРѕС‚РѕРєР° РІРІРѕРґР°
-    void sort_uint64(ifstream& for_sort);
-
-    // СЃР»РёСЏРЅРёРµ РґРІСѓС… С„Р°Р№Р»РѕРІ СЃ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹РјРё С‡РёСЃР»Р°РјРё
+    void sort_th(ifstream& for_sort);
     void merge_parts(string& p1fn, string& p2fn, string& outfn);
 
-    // СЃР»РёСЏРЅРёРµ РјР°СЃСЃРёРІР° РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹С… С‡РёСЃРµР» Рё С„Р°Р№Р»Р° СЃ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹РјРё С‡РёСЃР»Р°РјРё
-    void merge_array_with_part(unique_ptr<uint64_t[]>& dat, size_t cnt, string& pfn, string& outfn);
-
 public:
-    Uint64_order(size_t batch = 100000, string file_in = "for_sort.dat", string file_out = "sorted.dat")
+    thread_sort(size_t batch, size_t portion)
 		: cnt_block(batch)
-		, file_for_sort(file_in)
-		, file_sorted(file_out) {}
-    ~Uint64_order() {}
+		, portion(portion) {
+    	guard_file = new mutex[2*portion];
+    }
+    ~thread_sort() {}
 
     //sort
-    void operator()(string file_for_sort = "for_sort.dat", string file_sorted = "sorted.dat")
+    void operator()(string file_for_sort = "for_sort.dat", string file_sorted = "sorted.dat", size_t num_of_thread = 2)
     {
-        ifstream for_sort(file_for_sort, ios::binary);
+    	ifstream for_sort(file_for_sort, ios::binary);
         if (!for_sort) {
             cout << "no file_for_sort!\n";
             return ;
         }
+
+        cout << "Number of threads: " << num_of_thread << endl;
+
+        Timer sort_timer; // время для сортировки
+        sort_timer.start();
         cout << "Start sorting '" << file_for_sort << "'\n";
-        {
-            Timer ttt; // РІСЂРµРјСЏ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
-            auto fun = [this](ifstream& for_sort) { this->sort_uint64(for_sort); };
-            thread t1(bind(fun, ref(for_sort)));
-            thread t2(bind(fun, ref(for_sort)));
-            t1.join();
-            t2.join();
-        }
+
+		auto fun = [this](ifstream& for_sort) {
+			this->sort_th(for_sort);
+		};
+		vector<thread> t;
+		for(int i=0; i<num_of_thread; i++){
+			t.emplace_back( bind(fun, ref(for_sort)) );
+		}
+		for(thread& cur_t : t){
+			cur_t.join();
+		}
+
+        sort_timer.stop();
+
         for_sort.close();
         remove(file_sorted.c_str());
-        int rc = rename(queue_parts.front().c_str(), file_sorted.c_str());
+        string res_string = "part_"+to_string(nom_part-1);
+        int rc = rename(res_string.c_str(), file_sorted.c_str());
         cout << "File sorted = '" << file_sorted << "'\n";
+    	cout << "Elapsed " << sort_timer.elapsedMilliseconds() << " milliseconds." << endl;
+    	cout << endl;
+
+    	nom_part = 1; //to use several times
+    	cur_part = 1;
         return ;
     }
-
 };
-
