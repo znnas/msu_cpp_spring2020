@@ -5,33 +5,34 @@
 #include <vector>
 #include <algorithm> //transform
 
-
 //examples of user function for callback
 
 //preprocessing: когда уже нашли токены, но ещЄ не знаем их тип 
-void only_three(vector<string>& token){
-	int n = token.size();
-	for(int i=0;i<n;i++){
-		if (token[i].length()>3) {
-			token[i] = token[i].substr(0,3);
-		}
+void only_three(string& token){
+	if (token.length()>3) {
+		token = token.substr(0,3);
 	}
 }
 
 //манипул€ции с числами
-void squared_vect(vector<int>& digits){
-//	int n = digits.size();
-	transform(digits.begin(), digits.end(), digits.begin(),
-						[](int cur){ return cur*cur; });
+int squared(int digits){
+	return digits*digits;
 }
 
 //манипул€ции со словами
-void to_upper(vector<string>& letters){
-	int n = letters.size();
-	for(int i=0;i<n;i++){
-		transform(letters[i].begin(), letters[i].end(), letters[i].begin(),
-				[](unsigned char c){ return std::toupper(c); });
-	};
+void to_upper(string& letters){
+	transform(letters.begin(), letters.end(), letters.begin(),
+			[](char c){ return toupper(c); });
+}
+
+void firstly(Timer& t){
+	t.start();
+	cout << "start parsing" << endl;
+}
+void finly(Timer& t){
+	t.stop();
+	cout << "elapsed time (ms):" << t.elapsedMilliseconds() << endl;
+	cout << "end parsing" << endl;
 }
 
 
@@ -50,7 +51,7 @@ int main(){
     cout << "(end of text)" << endl;
     cout << endl;
     
-    parser(test1, res_digits, res_letters, to_upper, squared_vect);
+    parser(test1, res_digits, res_letters, firstly, finly, to_upper, squared);
     n_dig=res_digits.size();
     n_let=res_letters.size();
 
@@ -76,7 +77,7 @@ int main(){
     cout << "(end of text)" << endl;
     cout << endl;
     
-    parser(test2, res_digits, res_letters, to_upper, squared_vect);
+    parser(test2, res_digits, res_letters, firstly, finly, to_upper, squared);
     n_dig=res_digits.size();
     n_let=res_letters.size();
 
@@ -101,7 +102,7 @@ int main(){
     cout << "(end of text)" << endl;
     cout << endl;
     
-    parser(test3, res_digits, res_letters, to_upper, squared_vect);
+    parser(test3, res_digits, res_letters, firstly, finly, to_upper, squared);
     n_dig=res_digits.size();
     n_let=res_letters.size();
 
@@ -126,7 +127,7 @@ int main(){
     cout << "(end of text)" << endl;
     cout << endl;
     
-    parser(test4, res_digits, res_letters, to_upper, squared_vect);
+    parser(test4, res_digits, res_letters, firstly, finly, to_upper, squared);
     n_dig=res_digits.size();
     n_let=res_letters.size();
 
@@ -143,14 +144,14 @@ int main(){
 	res_letters.erase(res_letters.begin(),res_letters.end());
 
 	//5th test (again not void) //preprocessing: оставл€ем не более трЄх первых символов от каждого tokena
-    string test5=" \t wha t\n's hapqpiruc pensdfjlkj ingdkjk\n\n 1009999999999999999999 ";
+    string test5=" \t wha t\n's hapqpiruc pensdfjlkj ingdkjk\n\n 10099999999999";
     cout << "Test5. preproc: get argument--only_three function, letters -- to_upper, int -- squared. " << endl;
     cout << "Test5 text (use first three symbols of token):"<< endl;
     cout << test5 << endl;
     cout << "(end of text)" << endl;
     cout << endl;
     
-    parser(test5, res_digits, res_letters, to_upper, squared_vect, only_three);
+    parser(test5, res_digits, res_letters, firstly, finly, to_upper, squared, only_three);
     n_dig=res_digits.size();
     n_let=res_letters.size();
 
